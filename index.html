@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Syed Frasat Ali — DevOps Engineer</title>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
+<style>@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300;12..96,400;12..96,700;12..96,800&display=swap');</style>
+<style>
+  :root {
+    --bg: #050a12;
+    --surface: #0b1422;
+    --accent: #00f5c4;
+    --accent2: #7b61ff;
+    --accent3: #ff6b35;
+    --text: #e8f0fe;
+    --muted: #6b7fa3;
+    --card: rgba(11,20,34,0.85);
+    --border: rgba(0,245,196,0.15);
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{background:var(--bg);color:var(--text);font-family:'Geist',sans-serif;overflow-x:hidden;cursor:none;font-weight:300;letter-spacing:.01em}
+
+  /* CUSTOM CURSOR */
+  #cursor{position:fixed;width:12px;height:12px;background:var(--accent);border-radius:50%;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);transition:transform .1s,width .3s,height .3s;mix-blend-mode:screen}
+  #cursor-ring{position:fixed;width:36px;height:36px;border:1.5px solid var(--accent);border-radius:50%;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);transition:transform .15s ease,width .3s,height .3s,opacity .3s;opacity:.5}
+
+  /* CANVAS */
+  #hero-canvas{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none}
+
+  /* NAV */
+  nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:1.5rem 4rem;display:flex;justify-content:space-between;align-items:center;backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
+  .logo{font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:1.2rem;color:var(--accent);letter-spacing:2px}
+  .nav-links{display:flex;gap:2.5rem;list-style:none}
+  .nav-links a{color:var(--muted);text-decoration:none;font-family:'Geist Mono',monospace;font-size:.8rem;letter-spacing:1px;transition:color .3s;position:relative}
+  .nav-links a::before{content:'./';color:var(--accent);opacity:0;transition:opacity .3s}
+  .nav-links a:hover{color:var(--text)}
+  .nav-links a:hover::before{opacity:1}
+
+  /* HERO SECTION */
+  #hero{position:relative;z-index:10;min-height:100vh;display:flex;align-items:center;padding:0 6rem}
+  .hero-inner{display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:center;max-width:1400px;margin:0 auto;width:100%}
+  .hero-text{animation:fadeInLeft .8s ease both}
+  .hero-badge{display:inline-flex;align-items:center;gap:.6rem;background:rgba(0,245,196,0.08);border:1px solid var(--border);padding:.4rem 1rem;border-radius:2rem;font-family:'Geist Mono',monospace;font-size:.75rem;color:var(--accent);margin-bottom:1.5rem;letter-spacing:1px}
+  .hero-badge::before{content:'';width:8px;height:8px;background:var(--accent);border-radius:50%;animation:pulse 2s infinite}
+  .hero-name{font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:clamp(2.5rem,5vw,4rem);line-height:1.05;margin-bottom:1rem}
+  .hero-name span{color:var(--accent)}
+  .hero-role{font-family:'Geist Mono',monospace;font-size:1rem;color:var(--accent2);margin-bottom:1.5rem;letter-spacing:2px}
+  .hero-desc{color:var(--muted);font-size:1rem;line-height:1.8;max-width:480px;margin-bottom:2.5rem}
+  .hero-cta{display:flex;gap:1rem;flex-wrap:wrap}
+  .btn-primary{background:var(--accent);color:#050a12;padding:.85rem 2rem;border-radius:.5rem;font-weight:600;text-decoration:none;font-size:.9rem;letter-spacing:.5px;transition:transform .2s,box-shadow .2s;display:inline-flex;align-items:center;gap:.5rem}
+  .btn-primary:hover{transform:translateY(-2px);box-shadow:0 12px 40px rgba(0,245,196,.35)}
+  .btn-outline{border:1px solid var(--border);color:var(--text);padding:.85rem 2rem;border-radius:.5rem;font-weight:400;text-decoration:none;font-size:.9rem;letter-spacing:.5px;transition:border-color .3s,color .3s}
+  .btn-outline:hover{border-color:var(--accent);color:var(--accent)}
+
+  /* AVATAR */
+  .hero-visual{display:flex;justify-content:center;align-items:center;position:relative}
+  .avatar-container{position:relative;width:380px;height:420px}
+  .avatar-glow{position:absolute;inset:-40px;background:radial-gradient(ellipse at center,rgba(0,245,196,.15) 0%,transparent 70%);animation:glow 4s ease-in-out infinite alternate}
+  .avatar-ring{position:absolute;inset:-20px;border:1px solid rgba(0,245,196,.2);border-radius:50%;animation:spin 20s linear infinite}
+  .avatar-ring2{position:absolute;inset:-10px;border:1px dashed rgba(123,97,255,.25);border-radius:50%;animation:spin 15s linear infinite reverse}
+  .avatar-img-wrap{position:relative;width:320px;height:380px;margin:auto;clip-path:polygon(12% 0%,88% 0%,100% 12%,100% 88%,88% 100%,12% 100%,0% 88%,0% 12%);overflow:hidden;border:3px solid rgba(0,245,196,0.3);box-shadow:0 0 60px rgba(0,245,196,0.12)}
+  .avatar-img-wrap img{width:100%;height:100%;object-fit:cover;object-position:top center;filter:brightness(0.95) contrast(1.05)}
+  .avatar-tag{position:absolute;bottom:-20px;left:50%;transform:translateX(-50%);background:var(--surface);border:1px solid var(--border);padding:.6rem 1.4rem;border-radius:2rem;font-family:'Geist Mono',monospace;font-size:.75rem;color:var(--accent);white-space:nowrap;letter-spacing:1px}
+  .float-badge{position:absolute;background:var(--surface);border:1px solid var(--border);border-radius:.75rem;padding:.75rem 1rem;font-family:'Geist Mono',monospace;font-size:.7rem;color:var(--text);display:flex;align-items:center;gap:.5rem;backdrop-filter:blur(8px)}
+  .float-badge .dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+  .badge-aws{top:10%;left:-70px;animation:float1 4s ease-in-out infinite}
+  .badge-docker{bottom:20%;right:-60px;animation:float2 4s ease-in-out infinite}
+  .badge-tf{top:50%;left:-80px;animation:float1 5s ease-in-out infinite}
+
+  /* SECTIONS */
+  section{position:relative;z-index:10;padding:7rem 6rem}
+  .section-label{font-family:'Geist Mono',monospace;font-size:.75rem;color:var(--accent);letter-spacing:3px;margin-bottom:1rem}
+  .section-title{font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:clamp(2rem,4vw,3rem);margin-bottom:1rem}
+  .section-line{width:60px;height:3px;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:2px;margin-bottom:3rem}
+
+  /* SKILLS */
+  #skills{background:linear-gradient(180deg,transparent,rgba(11,20,34,.5),transparent)}
+  .skills-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1.5rem}
+  .skill-card{background:var(--card);border:1px solid var(--border);border-radius:1rem;padding:1.75rem;transition:border-color .3s,transform .3s,box-shadow .3s;backdrop-filter:blur(8px)}
+  .skill-card:hover{border-color:rgba(0,245,196,.4);transform:translateY(-4px);box-shadow:0 20px 60px rgba(0,245,196,.07)}
+  .skill-card-header{display:flex;align-items:center;gap:.75rem;margin-bottom:1.25rem}
+  .skill-icon{width:36px;height:36px;border-radius:.5rem;display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0}
+  .skill-card-title{font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:.95rem}
+  .skill-tags{display:flex;flex-wrap:wrap;gap:.5rem}
+  .skill-tag{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);color:var(--muted);padding:.3rem .75rem;border-radius:.4rem;font-family:'Geist Mono',monospace;font-size:.72rem;transition:border-color .3s,color .3s}
+  .skill-tag:hover{border-color:var(--accent);color:var(--accent)}
+
+  /* EXPERIENCE */
+  .timeline{position:relative;padding-left:2rem}
+  .timeline::before{content:'';position:absolute;left:0;top:0;bottom:0;width:1px;background:linear-gradient(180deg,var(--accent),var(--accent2),transparent)}
+  .tl-item{position:relative;margin-bottom:3.5rem}
+  .tl-dot{position:absolute;left:-2.4rem;top:.2rem;width:14px;height:14px;border-radius:50%;border:2px solid var(--accent);background:var(--bg);box-shadow:0 0 15px rgba(0,245,196,.5)}
+  .tl-date{font-family:'Geist Mono',monospace;font-size:.75rem;color:var(--accent);letter-spacing:1px;margin-bottom:.5rem}
+  .tl-role{font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:1.3rem;margin-bottom:.25rem}
+  .tl-company{color:var(--accent2);font-size:.9rem;margin-bottom:1rem}
+  .tl-list{list-style:none;display:flex;flex-direction:column;gap:.6rem}
+  .tl-list li{color:var(--muted);font-size:.9rem;line-height:1.6;padding-left:1.2rem;position:relative}
+  .tl-list li::before{content:'▸';position:absolute;left:0;color:var(--accent);font-size:.8rem}
+
+  /* PROJECTS */
+  .projects-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:1.5rem}
+  .proj-card{background:var(--card);border:1px solid var(--border);border-radius:1rem;padding:1.75rem;position:relative;overflow:hidden;transition:transform .3s,box-shadow .3s;backdrop-filter:blur(8px)}
+  .proj-card::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(0,245,196,.04),transparent);opacity:0;transition:opacity .3s}
+  .proj-card:hover{transform:translateY(-5px);box-shadow:0 25px 70px rgba(0,245,196,.1)}
+  .proj-card:hover::before{opacity:1}
+  .proj-num{font-family:'Geist Mono',monospace;font-size:.7rem;color:var(--accent);opacity:.5;letter-spacing:2px;margin-bottom:1rem}
+  .proj-name{font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:1.25rem;margin-bottom:.75rem}
+  .proj-stack{color:var(--muted);font-family:'Geist Mono',monospace;font-size:.72rem;line-height:1.6;margin-bottom:1rem}
+  .proj-highlight{font-size:.88rem;color:var(--text);line-height:1.6;opacity:.8}
+  .proj-corner{position:absolute;top:1.5rem;right:1.5rem;width:8px;height:8px;border-top:2px solid var(--accent);border-right:2px solid var(--accent)}
+
+  /* CONTACT */
+  #contact{text-align:center}
+  .contact-card{max-width:600px;margin:0 auto;background:var(--card);border:1px solid var(--border);border-radius:1.5rem;padding:3rem;backdrop-filter:blur(8px)}
+  .contact-links{display:flex;justify-content:center;gap:1.5rem;flex-wrap:wrap;margin-top:2rem}
+  .contact-link{display:flex;align-items:center;gap:.6rem;color:var(--muted);text-decoration:none;font-family:'Geist Mono',monospace;font-size:.8rem;transition:color .3s;border:1px solid var(--border);padding:.6rem 1.2rem;border-radius:.5rem}
+  .contact-link:hover{color:var(--accent);border-color:rgba(0,245,196,.3)}
+
+  /* FOOTER */
+  footer{text-align:center;padding:2rem 6rem;border-top:1px solid var(--border);font-family:'Geist Mono',monospace;font-size:.75rem;color:var(--muted);position:relative;z-index:10}
+
+  /* STATS */
+  .stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:1.5rem;margin-bottom:5rem}
+  .stat-card{background:var(--card);border:1px solid var(--border);border-radius:1rem;padding:1.5rem;text-align:center;backdrop-filter:blur(8px)}
+  .stat-num{font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:2.5rem;color:var(--accent)}
+  .stat-label{font-family:'Geist Mono',monospace;font-size:.72rem;color:var(--muted);margin-top:.25rem;letter-spacing:1px}
+
+  /* KEYFRAMES */
+  @keyframes fadeInLeft{from{opacity:0;transform:translateX(-30px)}to{opacity:1;transform:translateX(0)}}
+  @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.8)}}
+  @keyframes glow{from{opacity:.6}to{opacity:1}}
+  @keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+  @keyframes float1{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+  @keyframes float2{0%,100%{transform:translateY(0)}50%{transform:translateY(10px)}}
+
+  /* CANVAS 3D section */
+  #canvas-3d-section{position:relative;height:340px;z-index:10;display:flex;align-items:center;justify-content:center;overflow:hidden}
+  #three-canvas{width:100%;height:100%;display:block}
+  .canvas-label{position:absolute;bottom:1.5rem;left:50%;transform:translateX(-50%);font-family:'Geist Mono',monospace;font-size:.72rem;color:var(--muted);letter-spacing:2px;animation:pulse 3s infinite}
+
+  @media(max-width:1024px){
+    nav,section,footer{padding-left:2rem;padding-right:2rem}
+    #hero{padding:0 2rem}
+    .hero-inner{grid-template-columns:1fr}
+    .hero-visual{display:none}
+    .stats-row{grid-template-columns:repeat(2,1fr)}
+  }
+</style>
+</head>
+<body>
+
+<div id="cursor"></div>
+<div id="cursor-ring"></div>
+
+<canvas id="hero-canvas"></canvas>
+
+<nav>
+  <div class="logo">SFA</div>
+  <ul class="nav-links">
+    <li><a href="#about">about</a></li>
+    <li><a href="#skills">skills</a></li>
+    <li><a href="#experience">experience</a></li>
+    <li><a href="#projects">projects</a></li>
+    <li><a href="#contact">contact</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section id="hero" id="about">
+  <div class="hero-inner">
+    <div class="hero-text">
+      <div class="hero-badge">● Available for opportunities</div>
+      <h1 class="hero-name">Syed<br/><span>Frasat Ali</span></h1>
+      <div class="hero-role">// DevOps Engineer</div>
+      <p class="hero-desc">Results-driven DevOps Engineer with 2+ years designing, automating, and managing scalable cloud infrastructure and CI/CD pipelines across AWS, GCP, and Azure.</p>
+      <div class="hero-cta">
+        <a class="btn-primary" href="mailto:syedfrasatali12@gmail.com">↗ Get In Touch</a>
+        <a class="btn-outline" href="https://www.linkedin.com/in/syed-frasat-ali-03015b238" target="_blank">LinkedIn</a>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <div class="avatar-container">
+        <div class="avatar-glow"></div>
+        <div class="avatar-ring"></div>
+        <div class="avatar-ring2"></div>
+        <div class="avatar-img-wrap">
+          <img src="./photo.jpg" alt="Syed Frasat Ali" onerror="this.parentElement.innerHTML='<div style=\'width:100%;height:100%;background:linear-gradient(135deg,#0b1422,#1a2a4a);display:flex;align-items:center;justify-content:center;font-family:sans-serif;font-size:4rem;color:#00f5c4;\'>SFA</div>'" />
+        </div>
+        <div class="avatar-tag">📍 Lahore, Pakistan</div>
+        <div class="float-badge badge-aws"><div class="dot" style="background:#ff9900"></div>AWS Certified</div>
+        <div class="float-badge badge-docker"><div class="dot" style="background:#2496ed"></div>Docker / ECS</div>
+        <div class="float-badge badge-tf"><div class="dot" style="background:#7b61ff"></div>Terraform IaC</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 3D CANVAS DIVIDER -->
+<div id="canvas-3d-section">
+  <canvas id="three-canvas"></canvas>
+  <div class="canvas-label">// interactive 3d — drag to explore</div>
+</div>
+
+<!-- STATS -->
+<section id="skills" style="padding-bottom:2rem">
+  <div style="max-width:1400px;margin:0 auto">
+    <div class="stats-row">
+      <div class="stat-card"><div class="stat-num">2+</div><div class="stat-label">YEARS EXP</div></div>
+      <div class="stat-card"><div class="stat-num">6+</div><div class="stat-label">KEY PROJECTS</div></div>
+      <div class="stat-card"><div class="stat-num">3</div><div class="stat-label">CLOUD PLATFORMS</div></div>
+      <div class="stat-card"><div class="stat-num">15+</div><div class="stat-label">TECH SKILLS</div></div>
+    </div>
+
+    <div class="section-label">WHAT I WORK WITH</div>
+    <h2 class="section-title">Technical Skills</h2>
+    <div class="section-line"></div>
+
+    <div class="skills-grid">
+      <div class="skill-card">
+        <div class="skill-card-header">
+          <div class="skill-icon" style="background:rgba(255,153,0,.1);color:#ff9900">☁</div>
+          <div class="skill-card-title">AWS Cloud</div>
+        </div>
+        <div class="skill-tags">
+          <span class="skill-tag">EC2</span><span class="skill-tag">ECS</span><span class="skill-tag">ECR</span><span class="skill-tag">VPC</span><span class="skill-tag">S3</span><span class="skill-tag">RDS</span><span class="skill-tag">Lambda</span><span class="skill-tag">CloudFront</span><span class="skill-tag">IAM</span><span class="skill-tag">Route 53</span><span class="skill-tag">ALB</span><span class="skill-tag">SNS</span>
+        </div>
+      </div>
+      <div class="skill-card">
+        <div class="skill-card-header">
+          <div class="skill-icon" style="background:rgba(0,122,255,.1);color:#007aff">⚙</div>
+          <div class="skill-card-title">CI/CD Pipelines</div>
+        </div>
+        <div class="skill-tags">
+          <span class="skill-tag">GitHub Actions</span><span class="skill-tag">GitLab CI/CD</span><span class="skill-tag">Jenkins</span>
+        </div>
+      </div>
+      <div class="skill-card">
+        <div class="skill-card-header">
+          <div class="skill-icon" style="background:rgba(36,150,237,.1);color:#2496ed">🐳</div>
+          <div class="skill-card-title">Containers</div>
+        </div>
+        <div class="skill-tags">
+          <span class="skill-tag">Docker</span><span class="skill-tag">Docker Compose</span><span class="skill-tag">AWS ECS</span>
+        </div>
+      </div>
+      <div class="skill-card">
+        <div class="skill-card-header">
+          <div class="skill-icon" style="background:rgba(123,97,255,.1);color:#7b61ff">⬡</div>
+          <div class="skill-card-title">IaC & Config Mgmt</div>
+        </div>
+        <div class="skill-tags">
+          <span class="skill-tag">Terraform</span><span class="skill-tag">Ansible</span>
+        </div>
+      </div>
+      <div class="skill-card">
+        <div class="skill-card-header">
+          <div class="skill-icon" style="background:rgba(255,107,53,.1);color:#ff6b35">◈</div>
+          <div class="skill-card-title">Scripting</div>
+        </div>
+        <div class="skill-tags">
+          <span class="skill-tag">Bash</span><span class="skill-tag">Python</span>
+        </div>
+      </div>
+      <div class="skill-card">
+        <div class="skill-card-header">
+          <div class="skill-icon" style="background:rgba(0,245,196,.1);color:#00f5c4">◎</div>
+          <div class="skill-card-title">Monitoring</div>
+        </div>
+        <div class="skill-tags">
+          <span class="skill-tag">Zabbix</span><span class="skill-tag">AWS CloudWatch</span>
+        </div>
+      </div>
+      <div class="skill-card">
+        <div class="skill-card-header">
+          <div class="skill-icon" style="background:rgba(255,200,0,.1);color:#ffc800">⬢</div>
+          <div class="skill-card-title">Security</div>
+        </div>
+        <div class="skill-tags">
+          <span class="skill-tag">AWS Secrets Manager</span><span class="skill-tag">HIPAA</span><span class="skill-tag">PCI DSS</span><span class="skill-tag">VPC Networking</span>
+        </div>
+      </div>
+      <div class="skill-card">
+        <div class="skill-card-header">
+          <div class="skill-icon" style="background:rgba(0,193,148,.1);color:#00c194">▣</div>
+          <div class="skill-card-title">GCP / Azure</div>
+        </div>
+        <div class="skill-tags">
+          <span class="skill-tag">Cloud Run</span><span class="skill-tag">Cloud Storage</span><span class="skill-tag">Azure VMs</span><span class="skill-tag">Azure MySQL</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- EXPERIENCE -->
+<section id="experience">
+  <div style="max-width:1400px;margin:0 auto">
+    <div class="section-label">WHERE I'VE WORKED</div>
+    <h2 class="section-title">Experience</h2>
+    <div class="section-line"></div>
+    <div class="timeline">
+      <div class="tl-item">
+        <div class="tl-dot"></div>
+        <div class="tl-date">SEP 2024 – PRESENT</div>
+        <div class="tl-role">DevOps Engineer</div>
+        <div class="tl-company">Raze Steer · Lahore, Pakistan</div>
+        <ul class="tl-list">
+          <li>Led end-to-end migration from SVN to Git across GitHub, GitLab, and Bitbucket for the entire engineering team.</li>
+          <li>Designed and implemented IaC solutions on AWS using Terraform, improving environment consistency and reducing deployment time.</li>
+          <li>Built and maintained automated CI/CD pipelines with GitHub Actions and GitLab CI/CD, eliminating manual deployment effort.</li>
+          <li>Deployed containerized applications on AWS ECS, ensuring high availability and horizontal scalability.</li>
+          <li>Integrated SonarQube code quality gates, reducing defect rates and improving codebase reliability.</li>
+          <li>Executed cross-cloud migrations (FelixAI, ExpirationCompliance) with minimal downtime using structured rollout strategies.</li>
+        </ul>
+      </div>
+      <div class="tl-item">
+        <div class="tl-dot" style="border-color:var(--accent2);box-shadow:0 0 15px rgba(123,97,255,.5)"></div>
+        <div class="tl-date">MAR 2024 – AUG 2024</div>
+        <div class="tl-role">DevOps Engineer — Internship</div>
+        <div class="tl-company">Enigmatix · Bahawalpur, Pakistan</div>
+        <ul class="tl-list">
+          <li>Built and deployed CI/CD pipelines for application releases using Jenkins and GitLab CI/CD.</li>
+          <li>Applied Ansible for configuration management and automation across multiple server environments.</li>
+          <li>Deployed and configured Zabbix for real-time infrastructure monitoring and alerting.</li>
+          <li>Developed a centralized secure server access solution, strengthening the organization's security posture.</li>
+          <li>Ensured all deployment and infrastructure operations met HIPAA compliance standards.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROJECTS -->
+<section id="projects">
+  <div style="max-width:1400px;margin:0 auto">
+    <div class="section-label">WHAT I'VE BUILT</div>
+    <h2 class="section-title">Key Projects</h2>
+    <div class="section-line"></div>
+    <div class="projects-grid">
+      <div class="proj-card">
+        <div class="proj-corner"></div>
+        <div class="proj-num">PROJECT / 01</div>
+        <div class="proj-name">Portali.tech</div>
+        <div class="proj-stack">Terraform · AWS ECS/ECR/IAM/Route 53 · PCI DSS</div>
+        <div class="proj-highlight">Built fully automated, PCI DSS-compliant IaC-based AWS infrastructure from scratch.</div>
+      </div>
+      <div class="proj-card">
+        <div class="proj-corner"></div>
+        <div class="proj-num">PROJECT / 02</div>
+        <div class="proj-name">Paragon</div>
+        <div class="proj-stack">GitHub Actions · GCP Cloud Run · Artifact Registry · Cloudflare</div>
+        <div class="proj-highlight">Implemented CI/CD pipelines for serverless deployment with automated container builds.</div>
+      </div>
+      <div class="proj-card">
+        <div class="proj-corner"></div>
+        <div class="proj-num">PROJECT / 03</div>
+        <div class="proj-name">Aliva</div>
+        <div class="proj-stack">Azure VM · Jenkins · Zabbix · Nginx · HIPAA</div>
+        <div class="proj-highlight">Managed full infrastructure lifecycle with CI/CD, monitoring, and HIPAA compliance.</div>
+      </div>
+      <div class="proj-card">
+        <div class="proj-corner"></div>
+        <div class="proj-num">PROJECT / 04</div>
+        <div class="proj-name">Hoopla</div>
+        <div class="proj-stack">AWS EC2/RDS/S3/VPC/ALB · CloudWatch</div>
+        <div class="proj-highlight">Designed scalable, highly available AWS infrastructure with automated CI/CD.</div>
+      </div>
+      <div class="proj-card">
+        <div class="proj-corner"></div>
+        <div class="proj-num">PROJECT / 05</div>
+        <div class="proj-name">White Fleet</div>
+        <div class="proj-stack">Cloud Run · GitLab CI/CD · Docker · SonarQube</div>
+        <div class="proj-highlight">Containerized application suite with code quality gates and automated deployments.</div>
+      </div>
+      <div class="proj-card">
+        <div class="proj-corner"></div>
+        <div class="proj-num">PROJECT / 06</div>
+        <div class="proj-name">Vault</div>
+        <div class="proj-stack">AWS ECS/ECR/EC2/RDS/SNS</div>
+        <div class="proj-highlight">Managed end-to-end production infrastructure deployments and post-release operations.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- EDUCATION -->
+<section>
+  <div style="max-width:1400px;margin:0 auto">
+    <div class="section-label">ACADEMIC BACKGROUND</div>
+    <h2 class="section-title">Education</h2>
+    <div class="section-line"></div>
+    <div class="timeline">
+      <div class="tl-item">
+        <div class="tl-dot"></div>
+        <div class="tl-date">JUN 2020 – JAN 2023</div>
+        <div class="tl-role">Master of Computer Science (MCS)</div>
+        <div class="tl-company">The Islamia University of Bahawalpur · CGPA: 3.48 / 4.00</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-dot" style="border-color:var(--accent2)"></div>
+        <div class="tl-date">JAN 2018 – FEB 2020</div>
+        <div class="tl-role">Bachelor of Computer Science (BSc)</div>
+        <div class="tl-company">The Islamia University of Bahawalpur · First Division</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div style="max-width:1400px;margin:0 auto">
+    <div class="section-label" style="text-align:center">LET'S CONNECT</div>
+    <h2 class="section-title" style="text-align:center">Get In Touch</h2>
+    <div class="section-line" style="margin:0 auto 3rem"></div>
+    <div class="contact-card">
+      <p style="color:var(--muted);line-height:1.8;font-size:.95rem">Available for DevOps roles, cloud consulting, and infrastructure projects. Let's build something reliable and scalable together.</p>
+      <div class="contact-links">
+        <a class="contact-link" href="mailto:syedfrasatali12@gmail.com">✉ syedfrasatali12@gmail.com</a>
+        <a class="contact-link" href="tel:+923201610817">📞 +92 320 161 0817</a>
+        <a class="contact-link" href="https://www.linkedin.com/in/syed-frasat-ali-03015b238" target="_blank">in LinkedIn</a>
+        <a class="contact-link" href="#">📍 Lahore, Pakistan</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <p>© 2026 Syed Frasat Ali — DevOps Engineer · Built with Three.js & pure passion</p>
+</footer>
+
+<!-- THREE.JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+// ========= CUSTOM CURSOR =========
+const cursor = document.getElementById('cursor');
+const ring = document.getElementById('cursor-ring');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cursor.style.left=mx+'px';cursor.style.top=my+'px'});
+function animRing(){rx+=(mx-rx)*.12;ry+=(my-ry)*.12;ring.style.left=rx+'px';ring.style.top=ry+'px';requestAnimationFrame(animRing)}
+animRing();
+document.querySelectorAll('a,button').forEach(el=>{
+  el.addEventListener('mouseenter',()=>{cursor.style.width='20px';cursor.style.height='20px';ring.style.width='56px';ring.style.height='56px';ring.style.opacity='1'});
+  el.addEventListener('mouseleave',()=>{cursor.style.width='12px';cursor.style.height='12px';ring.style.width='36px';ring.style.height='36px';ring.style.opacity='.5'});
+});
+
+// ========= BACKGROUND PARTICLE CANVAS =========
+const bgCanvas = document.getElementById('hero-canvas');
+const bgCtx = bgCanvas.getContext('2d');
+let bgW, bgH, bgParticles=[];
+function resizeBg(){bgW=bgCanvas.width=window.innerWidth;bgH=bgCanvas.height=window.innerHeight}
+resizeBg();
+window.addEventListener('resize',resizeBg);
+for(let i=0;i<120;i++){bgParticles.push({x:Math.random()*window.innerWidth,y:Math.random()*window.innerHeight,r:Math.random()*1.5+.3,vx:(Math.random()-.5)*.3,vy:(Math.random()-.5)*.3,a:Math.random()})}
+function drawBg(){
+  bgCtx.clearRect(0,0,bgW,bgH);
+  bgParticles.forEach(p=>{
+    p.x+=p.vx;p.y+=p.vy;p.a+=.005;
+    if(p.x<0)p.x=bgW;if(p.x>bgW)p.x=0;if(p.y<0)p.y=bgH;if(p.y>bgH)p.y=0;
+    bgCtx.beginPath();bgCtx.arc(p.x,p.y,p.r,0,Math.PI*2);
+    bgCtx.fillStyle=`rgba(0,245,196,${.15+.1*Math.sin(p.a)})`;bgCtx.fill();
+  });
+  // Connection lines
+  for(let i=0;i<bgParticles.length;i++){for(let j=i+1;j<bgParticles.length;j++){
+    const dx=bgParticles[i].x-bgParticles[j].x,dy=bgParticles[i].y-bgParticles[j].y,d=Math.sqrt(dx*dx+dy*dy);
+    if(d<100){bgCtx.beginPath();bgCtx.moveTo(bgParticles[i].x,bgParticles[i].y);bgCtx.lineTo(bgParticles[j].x,bgParticles[j].y);bgCtx.strokeStyle=`rgba(0,245,196,${.08*(1-d/100)})`;bgCtx.stroke()}
+  }}
+  requestAnimationFrame(drawBg);
+}
+drawBg();
+
+// ========= THREE.JS 3D SCENE =========
+const c3 = document.getElementById('three-canvas');
+const sec3d = document.getElementById('canvas-3d-section');
+const renderer = new THREE.WebGLRenderer({canvas:c3,antialias:true,alpha:true});
+renderer.setPixelRatio(Math.min(window.devicePixelRatio,2));
+renderer.setSize(sec3d.clientWidth,sec3d.clientHeight);
+
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(60,sec3d.clientWidth/sec3d.clientHeight,.1,100);
+camera.position.set(0,0,5);
+
+// Lighting
+const ambient = new THREE.AmbientLight(0x00f5c4,.3);
+scene.add(ambient);
+const dir1 = new THREE.DirectionalLight(0x00f5c4,1.2);
+dir1.position.set(5,5,5);scene.add(dir1);
+const dir2 = new THREE.DirectionalLight(0x7b61ff,.8);
+dir2.position.set(-5,-3,2);scene.add(dir2);
+const point1 = new THREE.PointLight(0xff6b35,1.5,10);
+point1.position.set(0,3,3);scene.add(point1);
+
+// Central icosahedron
+const geoIco = new THREE.IcosahedronGeometry(1.2,1);
+const matIco = new THREE.MeshStandardMaterial({color:0x00f5c4,metalness:.8,roughness:.2,wireframe:false,emissive:0x001a12,emissiveIntensity:.3});
+const ico = new THREE.Mesh(geoIco,matIco);
+scene.add(ico);
+
+// Wire overlay
+const geoWire = new THREE.IcosahedronGeometry(1.25,1);
+const matWire = new THREE.MeshBasicMaterial({color:0x00f5c4,wireframe:true,opacity:.25,transparent:true});
+const wire = new THREE.Mesh(geoWire,matWire);
+scene.add(wire);
+
+// Orbit rings
+function makeRing(radius,tube,color,rotX,rotY){
+  const geo=new THREE.TorusGeometry(radius,tube,8,80);
+  const mat=new THREE.MeshStandardMaterial({color,metalness:.9,roughness:.1,emissive:color,emissiveIntensity:.2});
+  const m=new THREE.Mesh(geo,mat);
+  m.rotation.x=rotX;m.rotation.y=rotY;
+  scene.add(m);return m;
+}
+const ring1=makeRing(1.9,.012,0x00f5c4,Math.PI/4,0);
+const ring2=makeRing(2.3,.008,0x7b61ff,Math.PI/2,Math.PI/6);
+const ring3=makeRing(2.7,.006,0xff6b35,0,Math.PI/4);
+
+// Floating satellites
+const satellites=[];
+const satColors=[0x00f5c4,0x7b61ff,0xff6b35,0x00c194,0xffc800];
+for(let i=0;i<12;i++){
+  const geo=new THREE.OctahedronGeometry(.08+Math.random()*.06,0);
+  const mat=new THREE.MeshStandardMaterial({color:satColors[i%satColors.length],metalness:.9,roughness:.1,emissive:satColors[i%satColors.length],emissiveIntensity:.5});
+  const m=new THREE.Mesh(geo,mat);
+  const ang=Math.random()*Math.PI*2;
+  const rad=2+Math.random()*.8;
+  m.userData={angle:ang,radius:rad,speed:.002+Math.random()*.003,tilt:Math.random()*Math.PI,yOff:Math.random()*Math.PI*2};
+  scene.add(m);satellites.push(m);
+}
+
+// Grid floor dots
+for(let i=0;i<300;i++){
+  const geo=new THREE.SphereGeometry(.015,4,4);
+  const mat=new THREE.MeshBasicMaterial({color:0x00f5c4,opacity:.25,transparent:true});
+  const m=new THREE.Mesh(geo,mat);
+  m.position.set((Math.random()-.5)*20,(Math.random()-.5)*20,(Math.random()-.5)*20);
+  scene.add(m);
+}
+
+// Mouse interaction
+let mX=0,mY=0,targetRX=0,targetRY=0;
+c3.parentElement.addEventListener('mousemove',e=>{const r=c3.getBoundingClientRect();mX=(e.clientX-r.left)/r.width*2-1;mY=-((e.clientY-r.top)/r.height)*2+1});
+
+let t=0;
+function animate3(){
+  requestAnimationFrame(animate3);t+=.008;
+  targetRX+=(mY*.3-targetRX)*.05;
+  targetRY+=(mX*.3-targetRY)*.05;
+  ico.rotation.x=targetRX+t*.3;
+  ico.rotation.y=targetRY+t*.5;
+  wire.rotation.x=targetRX+t*.25;
+  wire.rotation.y=targetRY+t*.45;
+  ring1.rotation.z+=.003;
+  ring2.rotation.x+=.004;ring2.rotation.z-=.002;
+  ring3.rotation.y+=.005;
+  point1.position.x=Math.sin(t)*3;point1.position.y=Math.cos(t*1.3)*2;
+  satellites.forEach(s=>{
+    s.userData.angle+=s.userData.speed;
+    s.position.x=Math.cos(s.userData.angle)*s.userData.radius;
+    s.position.z=Math.sin(s.userData.angle)*s.userData.radius;
+    s.position.y=Math.sin(s.userData.angle*2+s.userData.yOff)*.6;
+    s.rotation.x+=.02;s.rotation.z+=.015;
+  });
+  renderer.render(scene,camera);
+}
+animate3();
+
+// Resize
+window.addEventListener('resize',()=>{
+  const w=sec3d.clientWidth,h=sec3d.clientHeight;
+  camera.aspect=w/h;camera.updateProjectionMatrix();
+  renderer.setSize(w,h);
+});
+
+// Scroll animation on skill cards
+const observer=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting){e.target.style.opacity='1';e.target.style.transform='translateY(0)'}})},{threshold:.1});
+document.querySelectorAll('.skill-card,.proj-card,.tl-item,.stat-card').forEach(el=>{
+  el.style.opacity='0';el.style.transform='translateY(20px)';
+  el.style.transition='opacity .6s ease, transform .6s ease';
+  observer.observe(el);
+});
+</script>
+</body>
+</html>
